@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { Pie } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Pie, Bar, Line } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from 'chart.js'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend)
 
 interface Employee {
   id: string
@@ -77,6 +87,7 @@ export default function Home() {
     INFO: alerts.filter(a => a.type === 'INFO').length,
   }
 
+  // Datos para Pie Chart (Alertas)
   const pieChartData = {
     labels: ['Críticas', 'Advertencias', 'Información'],
     datasets: [
@@ -95,6 +106,66 @@ export default function Home() {
         borderWidth: 2,
       },
     ],
+  }
+
+  // Datos para Bar Chart (Empleados por Área)
+  const areaStats = employees.reduce((acc, emp) => {
+    acc[emp.area] = (acc[emp.area] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  const barChartData = {
+    labels: Object.keys(areaStats),
+    datasets: [
+      {
+        label: 'Empleados por Área',
+        data: Object.values(areaStats),
+        backgroundColor: [
+          '#3b82f6',
+          '#10b981',
+          '#f59e0b',
+          '#ef4444',
+          '#8b5cf6',
+          '#ec4899',
+        ],
+        borderColor: [
+          '#1e40af',
+          '#065f46',
+          '#d97706',
+          '#991b1b',
+          '#6d28d9',
+          '#be185d',
+        ],
+        borderWidth: 2,
+      },
+    ],
+  }
+
+  // Datos para Line Chart (Horas por Día)
+  const lineChartData = {
+    labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+    datasets: [
+      {
+        label: 'Horas Trabajadas',
+        data: [8.2, 8.5, 8.1, 8.8, 8.3, 4.2, 0],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 5,
+        pointBackgroundColor: '#3b82f6',
+        pointBorderColor: '#1e40af',
+        pointBorderWidth: 2,
+      },
+    ],
+  }
+
+  // Datos para Turnos (Doughnut)
+  const turnoStats = {
+    Mañana: employees.filter(e => e.turno === 'Mañana').length,
+    Tarde: employees.filter(e => e.turno === 'Tarde').length,
+    Noche: employees.filter(e => e.turno === 'Noche').length,
   }
 
   if (loading) return (
@@ -116,13 +187,13 @@ export default function Home() {
 
       <main className="min-h-screen bg-gray-50">
         <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 shadow-lg">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl font-bold">🎯 AssistantTrack 4D</h1>
             <p className="text-blue-100 text-lg">Sistema de Control Laboral con Computer Vision</p>
           </div>
         </header>
 
-        <section className="max-w-6xl mx-auto p-6">
+        <section className="max-w-7xl mx-auto p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
               <h3 className="text-gray-600 text-sm font-medium">👥 Empleados</h3>
@@ -142,13 +213,15 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* GRÁFICOS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Pie Chart - Alertas */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="border-b border-gray-200 pb-4 mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">📊 Distribución de Alertas</h2>
+                <h2 className="text-xl font-bold text-gray-800">📊 Distribución de Alertas</h2>
               </div>
               <div className="flex justify-center">
-                <div style={{ width: '300px', height: '300px' }}>
+                <div style={{ width: '100%', height: '300px' }}>
                   <Pie
                     data={pieChartData}
                     options={{
@@ -157,10 +230,7 @@ export default function Home() {
                       plugins: {
                         legend: {
                           position: 'bottom',
-                          labels: {
-                            padding: 20,
-                            font: { size: 14 },
-                          },
+                          labels: { padding: 15, font: { size: 12 } },
                         },
                       },
                     }}
@@ -169,36 +239,78 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Bar Chart - Empleados por Área */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="border-b border-gray-200 pb-4 mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">📈 Resumen de Alertas</h2>
+                <h2 className="text-xl font-bold text-gray-800">📊 Empleados por Área</h2>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
-                  <div>
-                    <p className="font-medium text-gray-800">Alertas Críticas</p>
-                    <p className="text-sm text-gray-600">Requieren atención inmediata</p>
-                  </div>
-                  <p className="text-3xl font-bold text-red-600">{alertStats.CRITICAL}</p>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
-                  <div>
-                    <p className="font-medium text-gray-800">Advertencias</p>
-                    <p className="text-sm text-gray-600">Situaciones a monitorear</p>
-                  </div>
-                  <p className="text-3xl font-bold text-yellow-600">{alertStats.WARNING}</p>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                  <div>
-                    <p className="font-medium text-gray-800">Información</p>
-                    <p className="text-sm text-gray-600">Registros del sistema</p>
-                  </div>
-                  <p className="text-3xl font-bold text-blue-600">{alertStats.INFO}</p>
-                </div>
+              <div style={{ width: '100%', height: '300px' }}>
+                <Bar
+                  data={barChartData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        labels: { font: { size: 12 } },
+                      },
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                      },
+                    },
+                  }}
+                />
               </div>
             </div>
           </div>
 
+          {/* Line Chart - Horas por Día */}
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <div className="border-b border-gray-200 pb-4 mb-4">
+              <h2 className="text-xl font-bold text-gray-800">📈 Horas Trabajadas por Día</h2>
+            </div>
+            <div style={{ width: '100%', height: '350px' }}>
+              <Line
+                data={lineChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      labels: { font: { size: 12 } },
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: { stepSize: 2 },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Resumen de Alertas */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-red-50 rounded-lg shadow p-6 border-l-4 border-red-500">
+              <p className="text-gray-600 text-sm font-medium">🔴 Alertas Críticas</p>
+              <p className="text-3xl font-bold text-red-600 mt-2">{alertStats.CRITICAL}</p>
+            </div>
+            <div className="bg-yellow-50 rounded-lg shadow p-6 border-l-4 border-yellow-500">
+              <p className="text-gray-600 text-sm font-medium">🟡 Advertencias</p>
+              <p className="text-3xl font-bold text-yellow-600 mt-2">{alertStats.WARNING}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg shadow p-6 border-l-4 border-blue-500">
+              <p className="text-gray-600 text-sm font-medium">🔵 Información</p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">{alertStats.INFO}</p>
+            </div>
+          </div>
+
+          {/* Tabla de Empleados */}
           <div className="bg-white rounded-lg shadow mb-8 overflow-hidden">
             <div className="p-6 border-b border-gray-200 bg-gray-50">
               <h2 className="text-2xl font-bold text-gray-800">📋 Empleados</h2>
@@ -246,6 +358,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Alertas */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b border-gray-200 bg-gray-50">
               <h2 className="text-2xl font-bold text-gray-800">🚨 Alertas del Sistema</h2>
