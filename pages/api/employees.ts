@@ -10,7 +10,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 { id: "E006", nombre: "Freddy Rivera", area: "TAR", turno: "Mañana" }
 { id: "E007", nombre: "Alexander James", area: "Inlet", turno: "Mañana" }
 { id: "E008", nombre: "Maria Pinzon", area: "Inlet", turno: "Mañana" }
- { id: "E009", nombre: "Diana Donato", area: "Inlet", turno: "Mañana" }   
+ { id: "E009", nombre: "Diana Donato", area: "Inlet", turno: "Mañana" } 
+ { id: "E009", nombre: "Camilo Vallejo", area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Sandra Soto", area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Lazaro Huerta", area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Gabriela Rivera", area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Mario Dueñas, area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Svetlana Sorocoba", area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Pedro Rivera", area: "Inlet", turno: "Mañana" }
+ { id: "E009", nombre: "Alberto Tizon", area: "Inlet", turno: "Mañana" }
+   { id: "E009", nombre: "Claudia Lopez", area: "Inlet", turno: "Mañana" }
   ]
   res.status(200).json(employees)
 }
