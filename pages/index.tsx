@@ -1,0 +1,198 @@
+import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
+
+interface Employee {
+  id: string
+  nombre: string
+  area: string
+  turno: string
+}
+
+interface Alert {
+  id: number
+  type: string
+  message: string
+  timestamp: string
+}
+
+export default function Home() {
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({ total_employees: 0, total_hours: 0, overtime_hours: 0, alerts: 0 })
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      const [empRes, alertRes, reportRes] = await Promise.all([
+        fetch('/api/employees').then(r => r.json()),
+        fetch('/api/alerts').then(r => r.json()),
+        fetch('/api/reports').then(r => r.json()),
+      ])
+      setEmployees(empRes)
+      setAlerts(alertRes)
+      setStats(reportRes)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCheckIn = async (employeeId: string) => {
+    try {
+      const res = await fetch(`/api/checkin?employee_id=${employeeId}`)
+      const data = await res.json()
+      alert(`✓ ${data.message}`)
+      fetchData()
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error en check-in')
+    }
+  }
+
+  const handleCheckOut = async (employeeId: string) => {
+    try {
+      const res = await fetch(`/api/checkout?employee_id=${employeeId}`)
+      const data = await res.json()
+      alert(`✓ ${data.message}`)
+      fetchData()
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error en check-out')
+    }
+  }
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Cargando...</p>
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      <Head>
+        <title>AssistantTrack 4D</title>
+        <meta name="description" content="Sistema de control laboral con Computer Vision" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+      <main className="min-h-screen bg-gray-50">
+        <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 shadow-lg">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-4xl font-bold">🎯 AssistantTrack 4D</h1>
+            <p className="text-blue-100 text-lg">Sistema de Control Laboral con Computer Vision</p>
+          </div>
+        </header>
+
+        <section className="max-w-6xl mx-auto p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+              <h3 className="text-gray-600 text-sm font-medium">👥 Empleados</h3>
+              <p className="text-3xl font-bold text-blue-600">{stats.total_employees}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+              <h3 className="text-gray-600 text-sm font-medium">⏱️ Horas Totales</h3>
+              <p className="text-3xl font-bold text-green-600">{stats.total_hours.toFixed(1)}h</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+              <h3 className="text-gray-600 text-sm font-medium">⚡ Horas Extra</h3>
+              <p className="text-3xl font-bold text-orange-600">{stats.overtime_hours.toFixed(1)}h</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+              <h3 className="text-gray-600 text-sm font-medium">🚨 Alertas</h3>
+              <p className="text-3xl font-bold text-red-600">{stats.alerts}</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow mb-8 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <h2 className="text-2xl font-bold text-gray-800">📋 Empleados</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-100 border-b">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nombre</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Área</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Turno</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.length > 0 ? employees.map((emp) => (
+                    <tr key={emp.id} className="border-b hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-700 font-mono">{emp.id}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">{emp.nombre}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{emp.area}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{emp.turno}</td>
+                      <td className="px-6 py-4 text-sm space-x-2">
+                        <button
+                          onClick={() => handleCheckIn(emp.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-medium transition"
+                        >
+                          ✓ Check-in
+                        </button>
+                        <button
+                          onClick={() => handleCheckOut(emp.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-xs font-medium transition"
+                        >
+                          ✗ Check-out
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">No hay empleados cargados</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <h2 className="text-2xl font-bold text-gray-800">🚨 Alertas del Sistema</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              {alerts.length > 0 ? alerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className={`p-4 rounded border-l-4 ${
+                    alert.type === 'CRITICAL' ? 'bg-red-50 border-red-500' :
+                    alert.type === 'WARNING' ? 'bg-yellow-50 border-yellow-500' :
+                    'bg-blue-50 border-blue-500'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-gray-800">{alert.message}</p>
+                      <p className="text-sm text-gray-600 mt-1">{new Date(alert.timestamp).toLocaleString('es-ES')}</p>
+                    </div>
+                    <span className={`text-xs font-bold px-3 py-1 rounded whitespace-nowrap ${
+                      alert.type === 'CRITICAL' ? 'bg-red-200 text-red-800' :
+                      alert.type === 'WARNING' ? 'bg-yellow-200 text-yellow-800' :
+                      'bg-blue-200 text-blue-800'
+                    }`}>
+                      {alert.type}
+                    </span>
+                  </div>
+                </div>
+              )) : (
+                <p className="text-gray-500 text-center py-8">No hay alertas activas</p>
+              )}
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
+  )
+}

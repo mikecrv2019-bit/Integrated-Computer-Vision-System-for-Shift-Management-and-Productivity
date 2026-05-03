@@ -1,0 +1,104 @@
+=============================================================================
+    AGENTE DE IA - QUICK START GUIDE
+    MAI 630 Computer Vision | Atlantis University
+=============================================================================
+
+🚀 INICIAR EN 5 PASOS (5 MINUTOS)
+
+PASO 1: Instalar Dependencias
+------------------------------
+Abre terminal/cmd en esta carpeta y ejecuta:
+
+    pip install -r requirements.txt
+
+PASO 2: Agregar Imágenes
+------------------------
+Copia imágenes de personas (JPG/PNG) a la carpeta:
+
+    demo_images/
+
+Ejemplo: demo_images/persona1.jpg, demo_images/persona2.jpg
+
+PASO 3: Ejecutar Agente
+----------------------
+En la terminal, ejecuta:
+
+    python run_agent.py
+
+PASO 4: Ver Resultados
+----------------------
+Los resultados se guardan en:
+
+    outputs/
+
+Archivos generados:
+  - faces_*.jpg         (imágenes con rostros detectados)
+  - resized_*.jpg       (imágenes redimensionadas)
+  - grayscale_*.jpg     (imágenes en escala de grises)
+  - analysis_report.json (reporte de análisis)
+
+PASO 5: (Opcional) Compilar a .exe
+---------------------------------
+En Windows, ejecuta:
+
+    build_exe.bat
+
+El archivo run_agent.exe se genera en la carpeta dist/
+
+
+=============================================================================
+📚 DOCUMENTACIÓN
+
+README.md                     → Documentación completa
+INSTRUCCIONES_COLAB_WINDOWS.md → Guías detalladas
+GUION_VIDEO_LOOM.md          → Guion para video
+CHECKLIST_ENTREGA.md         → Checklist de entrega
+
+=============================================================================
+🔧 TROUBLESHOOTING
+
+Error: ModuleNotFoundError
+→ Ejecuta: pip install --upgrade opencv-python
+
+Error: DLL load failed
+→ Ejecuta: pip install opencv-python-headless
+
+Error: No se encuentran imágenes
+→ Coloca imágenes en demo_images/ y ejecuta de nuevo
+
+=============================================================================
+⚡ COMANDOS ESENCIALES
+
+# Instalar
+pip install -r requirements.txt
+
+# Ejecutar agente
+python run_agent.py
+
+# Compilar a .exe (Windows)
+build_exe.bat
+pyinstaller --onefile --windowed run_agent.py
+
+# Google Colab
+!pip install opencv-python Pillow numpy
+!python run_agent.py
+
+=============================================================================
+✅ VERIFICACIÓN
+
+Que todo funciona:
+1. python run_agent.py → ✅ Sin errores
+2. outputs/ → ✅ Contiene archivos procesados
+3. analysis_report.json → ✅ Reporte generado
+4. run_agent.exe → ✅ Ejecutable funcional (Windows)
+
+=============================================================================
+📞 AYUDA
+
+Para más información, consulta:
+- README.md (documentación completa)
+- INSTRUCCIONES_COLAB_WINDOWS.md (guías paso a paso)
+- CHECKLIST_ENTREGA.md (checklist de entrega)
+
+=============================================================================
+Versión 1.0 | 2026 | MAI 630 Computer Vision

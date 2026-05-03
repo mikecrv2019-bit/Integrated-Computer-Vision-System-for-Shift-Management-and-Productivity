@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AssistantTrack 4D — Especificaciones Técnicas</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9; --white:#ffffff; --dark:#0a1828; --cyan:#0077aa;
+  --teal:#008b7a; --red:#c8303c; --green:#1a8a4a; --gold:#a07a00;
+  --text:#1a2a3a; --muted:#6a8aa0; --border:#dde4ec;
+  --accent:#e8f4ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px;line-height:1.6;}
+
+.page{max-width:900px;margin:0 auto;padding:40px 32px;}
+
+/* HEADER */
+.doc-header{background:var(--dark);color:white;padding:40px 48px;border-radius:8px;margin-bottom:32px;position:relative;overflow:hidden;}
+.doc-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00e5ff,#00c9b1,#0066ff);}
+.doc-logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:#00e5ff;letter-spacing:4px;margin-bottom:6px;}
+.doc-title{font-size:18px;color:rgba(255,255,255,.85);margin-bottom:20px;}
+.doc-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.meta-item .label{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:3px;font-family:'Orbitron',monospace;margin-bottom:3px;}
+.meta-item .value{font-size:13px;color:rgba(255,255,255,.85);font-family:'JetBrains Mono',monospace;}
+
+/* SECTION */
+.section{background:var(--white);border:1px solid var(--border);border-radius:6px;margin-bottom:20px;overflow:hidden;}
+.section-head{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--accent);}
+.section-num{font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);border:1px solid rgba(0,119,170,.3);padding:2px 8px;border-radius:2px;}
+.section-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--dark);}
+.section-body{padding:20px 24px;}
+
+/* COMPONENTS */
+h3{font-family:'Orbitron',monospace;font-size:11px;color:var(--dark);margin:20px 0 10px;letter-spacing:1px;}
+h3:first-child{margin-top:0;}
+p{margin-bottom:10px;color:var(--text);font-size:13px;}
+ul{padding-left:18px;margin-bottom:12px;}
+li{margin-bottom:4px;font-size:12px;color:#2a4a6a;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+/* CARDS */
+.card{border:1px solid var(--border);border-radius:5px;padding:14px 16px;background:var(--bg);}
+.card-title{font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:8px;}
+.card-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--dark);}
+.card-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+
+.card.green .card-val{color:var(--green);}
+.card.red   .card-val{color:var(--red);}
+.card.gold  .card-val{color:var(--gold);}
+.card.cyan  .card-val{color:var(--cyan);}
+
+/* TABLE */
+.spec-table{width:100%;border-collapse:collapse;font-size:12px;}
+.spec-table th{background:var(--dark);color:rgba(255,255,255,.7);padding:8px 12px;text-align:left;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;}
+.spec-table td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.spec-table tr:last-child td{border:none;}
+.spec-table tr:nth-child(even) td{background:var(--accent);}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-family:'JetBrains Mono',monospace;}
+.tag.green{background:#d6f5e3;color:var(--green);}
+.tag.blue {background:#dceeff;color:var(--cyan);}
+.tag.gold {background:#fff3cc;color:var(--gold);}
+.tag.red  {background:#fde8ea;color:var(--red);}
+
+/* FLOW DIAGRAM */
+.flow-doc{display:flex;align-items:center;gap:0;flex-wrap:wrap;row-gap:12px;justify-content:center;}
+.fd-node{text-align:center;min-width:110px;}
+.fd-box{padding:10px 14px;border-radius:4px;border:1px solid;font-size:10px;font-family:'JetBrains Mono',monospace;line-height:1.3;}
+.fd-label{font-size:9px;color:var(--muted);margin-top:4px;}
+.fd-arr{color:var(--muted);font-size:18px;padding:0 4px;margin-top:-12px;}
+
+.fdn1 .fd-box{border-color:rgba(0,180,200,.4);background:rgba(0,180,200,.07);color:#007a90;}
+.fdn2 .fd-box{border-color:rgba(0,150,100,.4);background:rgba(0,150,100,.07);color:var(--green);}
+.fdn3 .fd-box{border-color:rgba(0,100,200,.4);background:rgba(0,100,200,.07);color:var(--cyan);}
+.fdn4 .fd-box{border-color:rgba(160,120,0,.4);background:rgba(160,120,0,.07);color:var(--gold);}
+.fdn5 .fd-box{border-color:rgba(26,138,74,.4);background:rgba(26,138,74,.07);color:var(--green);}
+.fdn6 .fd-box{border-color:rgba(200,50,60,.4);background:rgba(200,50,60,.07);color:var(--red);}
+
+/* TIMELINE */
+.tl-doc{position:relative;padding-left:30px;}
+.tl-doc::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:1px;background:var(--border);}
+.tl-item-doc{position:relative;margin-bottom:20px;}
+.tl-dot-doc{position:absolute;left:-24px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid;background:white;}
+.tl-item-doc.p1 .tl-dot-doc{border-color:var(--cyan);}
+.tl-item-doc.p2 .tl-dot-doc{border-color:#5577cc;}
+.tl-item-doc.p3 .tl-dot-doc{border-color:var(--gold);}
+.tl-item-doc.p4 .tl-dot-doc{border-color:var(--green);}
+.tl-week{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px;}
+.tl-title-doc{font-weight:600;font-size:13px;margin-bottom:4px;}
+.tl-item-doc.p1 .tl-title-doc{color:var(--cyan);}
+.tl-item-doc.p2 .tl-title-doc{color:#5577cc;}
+.tl-item-doc.p3 .tl-title-doc{color:var(--gold);}
+.tl-item-doc.p4 .tl-title-doc{color:var(--green);}
+.tl-tasks-doc{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+.tl-tag{font-size:9px;padding:2px 8px;border-radius:2px;border:1px solid;font-family:'JetBrains Mono',monospace;}
+.p1 .tl-tag{color:var(--cyan);border-color:rgba(0,119,170,.25);background:rgba(0,119,170,.05);}
+.p2 .tl-tag{color:#5577cc;border-color:rgba(85,119,204,.25);background:rgba(85,119,204,.05);}
+.p3 .tl-tag{color:var(--gold);border-color:rgba(160,120,0,.25);background:rgba(160,120,0,.05);}
+.p4 .tl-tag{color:var(--green);border-color:rgba(26,138,74,.25);background:rgba(26,138,74,.05);}
+
+/* CODE BLOCK */
+.code-block{background:var(--dark);color:#a8d8f0;padding:14px 16px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;overflow-x:auto;margin:10px 0;}
+.code-comment{color:#4a7a9a;}
+.code-key{color:#00e5ff;}
+.code-val{color:#a8f0b0;}
+.code-str{color:#f0c8a0;}
+
+/* FOOTER */
+.doc-footer{background:var(--dark);color:rgba(255,255,255,.4);padding:16px 24px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;font-size:10px;font-family:'JetBrains Mono',monospace;margin-top:24px;}
+.footer-logo{color:#00e5ff;font-family:'Orbitron',monospace;font-size:10px;}
+
+@media print{
+  body{background:white;}
+  .page{padding:20px;}
+  .doc-header{border-radius:0;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="doc-logo">ASSISTANTTRACK 4D</div>
+  <div class="doc-title">Especificaciones Técnicas del Proyecto — Computer Vision Workforce Intelligence</div>
+  <div class="doc-meta">
+    <div class="meta-item"><div class="label">VERSIÓN</div><div class="value">v2.1.0</div></div>
+    <div class="meta-item"><div class="label">FECHA</div><div class="value">2026-04-03</div></div>
+    <div class="meta-item"><div class="label">ESTADO</div><div class="value">PRODUCCIÓN</div></div>
+    <div class="meta-item"><div class="label">CLASIFICACIÓN</div><div class="value">CONFIDENCIAL</div></div>
+  </div>
+</div>
+
+<!-- 1. RESUMEN EJECUTIVO -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <span class="section-title">RESUMEN EJECUTIVO</span>
+  </div>
+  <div class="section-body">
+    <p><strong>AssistantTrack 4D</strong> es un sistema de gestión de asistencia y control de overtime impulsado por Visión por Computadora (Computer Vision) que elimina el registro manual de turnos mediante reconocimiento facial biométrico en tiempo real, con análisis conductual en 4 dimensiones: Espacial, Temporal, Conductual y Financiera.</p>
+    <p>El sistema registra automáticamente los 4 eventos críticos del ciclo laboral: <strong>Inicio de Turno, Fin de Turno, Inicio de Overtime y Fin de Overtime</strong>, generando evidencia fotográfica cifrada y actualizando la nómina de forma automática.</p>
+    <div class="grid4" style="margin-top:16px;">
+      <div class="card cyan"><div class="card-title">REDUCCIÓN OT</div><div class="card-val">−40%</div><div class="card-sub">Costo overtime no justificado</div></div>
+      <div class="card green"><div class="card-title">PRODUCTIVIDAD</div><div class="card-val">+15%</div><div class="card-sub">Rendimiento operativo</div></div>
+      <div class="card gold"><div class="card-title">PAYBACK</div><div class="card-val">3.8m</div><div class="card-sub">Recuperación de inversión</div></div>
+      <div class="card red"><div class="card-title">ROI AÑO 1</div><div class="card-val">316%</div><div class="card-sub">Retorno sobre inversión</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. DIAGRAMA DE FLUJO -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <span class="section-title">DIAGRAMA DE FLUJO DEL SISTEMA</span>
+  </div>
+  <div class="section-body">
+    <p>El sistema procesa 6 etapas secuenciales desde la detección de cámara hasta el reporte automatizado:</p>
+    <div class="flow-doc" style="margin:20px 0;">
+      <div class="fd-node fdn1"><div class="fd-box">📷 CÁMARA CV<br>ACTIVA</div><div class="fd-label">CONTINUO</div></div>
+      <div class="fd-arr">▶</div>
+      <div class="fd-node fdn2"><div class="fd-box">🟢 INICIO<br>TURNO</div><div class="fd-label">CHECK-IN</div></div>
+      <div class="fd-arr">▶</div>
+      <div class="fd-node fdn3"><div class="fd-box">🔵 FIN DE<br>JORNADA</div><div class="fd-label">CHECK-OUT</div></div>
+      <div class="fd-arr">▶</div>
+      <div class="fd-node fdn4"><div class="fd-box">⚡ INICIO<br>OVERTIME</div><div class="fd-label">OT START</div></div>
+      <div class="fd-arr">▶</div>
+      <div class="fd-node fdn5"><div class="fd-box">🏁 FIN<br>OVERTIME</div><div class="fd-label">OT END</div></div>
+      <div class="fd-arr">▶</div>
+      <div class="fd-node fdn6"><div class="fd-box">📊 REPORTE<br>& ALERTA</div><div class="fd-label">REAL-TIME</div></div>
+    </div>
+
+    <h3>LÓGICA DE DECISIÓN — OVERTIME</h3>
+    <div class="code-block">
+<span class="code-comment">// Regla de negocio: Control de Overtime</span>
+<span class="code-key">IF</span> empleado.horasTrabajadas >= turnoEsperado:
+  <span class="code-key">IF</span> supervisor.aprobacionOT == <span class="code-val">true</span>:
+    estado = <span class="code-str">"OT_AUTORIZADO"</span>
+    iniciarContadorOT()
+    notificarNomina()
+  <span class="code-key">ELSE</span>:
+    estado = <span class="code-str">"OT_PENDIENTE"</span>
+    dispararAlerta(nivel=<span class="code-str">"WARNING"</span>)
+    <span class="code-key">IF</span> tiempoSinAprobacion > umbralCritico:
+      escalarARRHH()
+      dispararAlerta(nivel=<span class="code-str">"CRITICAL"</span>)
+    </div>
+
+    <h3>EVENTOS DEL SISTEMA</h3>
+    <table class="spec-table">
+      <thead><tr><th>EVENTO</th><th>DISPARADOR CV</th><th>ACCIÓN ERP</th><th>EVIDENCIA</th><th>NOTIFICACIÓN</th></tr></thead>
+      <tbody>
+        <tr><td><strong>INICIO TURNO</strong></td><td>Reconocimiento facial zona entrada</td><td>Registro entrada nómina</td><td>Foto + timestamp cifrado</td><td>Confirmación empleado</td></tr>
+        <tr><td><strong>FIN JORNADA</strong></td><td>Detección salida zona + verificación facial</td><td>Cierre turno + cálculo horas</td><td>Foto + resumen turno</td><td>Resumen a supervisor</td></tr>
+        <tr><td><strong>INICIO OVERTIME</strong></td><td>Permanencia post-turno + aprobación</td><td>Inicio registro OT nómina</td><td>Foto + autorización</td><td>Push supervisor + RRHH</td></tr>
+        <tr><td><strong>FIN OVERTIME</strong></td><td>Detección salida post-OT</td><td>Cierre OT + costo final</td><td>Foto + reporte costo OT</td><td>Reporte gerencial</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 3. ARQUITECTURA TÉCNICA -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <span class="section-title">ARQUITECTURA TÉCNICA — COMPUTER VISION 4D</span>
+  </div>
+  <div class="section-body">
+
+    <div class="grid2">
+      <div>
+        <h3>STACK DE VISIÓN POR COMPUTADORA</h3>
+        <table class="spec-table">
+          <thead><tr><th>COMPONENTE</th><th>TECNOLOGÍA</th><th>FUNCIÓN</th></tr></thead>
+          <tbody>
+            <tr><td>Reconocimiento Facial</td><td><span class="tag blue">ArcFace</span></td><td>Identificación biométrica</td></tr>
+            <tr><td>Detección de Personas</td><td><span class="tag blue">YOLOv9</span></td><td>Localización en frame</td></tr>
+            <tr><td>Análisis de Postura</td><td><span class="tag blue">MediaPipe</span></td><td>Detección de pose corporal</td></tr>
+            <tr><td>Liveness Detection</td><td><span class="tag blue">3D Anti-Spoof</span></td><td>Anti-fraude</td></tr>
+            <tr><td>Tracking Multi-Persona</td><td><span class="tag blue">DeepSORT</span></td><td>Seguimiento por ID</td></tr>
+            <tr><td>Depth Sensing</td><td><span class="tag blue">Estéreo CV</span></td><td>Dimensión espacial 3D</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>INFRAESTRUCTURA EDGE</h3>
+        <table class="spec-table">
+          <thead><tr><th>COMPONENTE</th><th>ESPECIFICACIÓN</th></tr></thead>
+          <tbody>
+            <tr><td>Cámaras IP</td><td>4K / 30fps / IR nocturno / 150°</td></tr>
+            <tr><td>Edge AI Server</td><td>NVIDIA Jetson AGX Orin</td></tr>
+            <tr><td>GPU Inference</td><td>CUDA 12 / TensorRT</td></tr>
+            <tr><td>Latencia máx.</td><td>&lt; 200ms reconocimiento</td></tr>
+            <tr><td>Red</td><td>VLAN dedicada 1Gbps</td></tr>
+            <tr><td>Almacenamiento</td><td>NVMe local + backup cifrado</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3>LAS 4 DIMENSIONES DEL ANÁLISIS</h3>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="card" style="border-left:3px solid var(--cyan);">
+        <div class="card-title" style="color:var(--cyan);">D1 — ESPACIAL</div>
+        <ul style="margin:0;font-size:11px;">
+          <li>Mapeo 3D del piso operativo</li>
+          <li>Zonas asignadas por empleado</li>
+          <li>Heatmap de densidad y movimiento</li>
+          <li>Detección de intrusión de zona</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid #5577cc;">
+        <div class="card-title" style="color:#5577cc;">D2 — TEMPORAL</div>
+        <ul style="margin:0;font-size:11px;">
+          <li>Timestamps con precisión de segundos</li>
+          <li>Registro inmutable (hash SHA-256)</li>
+          <li>Análisis de patrones por turno</li>
+          <li>Predicción de necesidades de OT</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--gold);">
+        <div class="card-title" style="color:var(--gold);">D3 — CONDUCTUAL</div>
+        <ul style="margin:0;font-size:11px;">
+          <li>Detección de inactividad (umbral configurable)</li>
+          <li>Score de engagement por empleado</li>
+          <li>Alertas de comportamiento fuera de protocolo</li>
+          <li>Análisis de flujo de trabajo</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green);">
+        <div class="card-title" style="color:var(--green);">D4 — FINANCIERA</div>
+        <ul style="margin:0;font-size:11px;">
+          <li>Costo por hora activa en tiempo real</li>
+          <li>Proyección y alertas de presupuesto OT</li>
+          <li>KPIs productividad por área y turno</li>
+          <li>API REST para ERP/nómina</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>API REST — ENDPOINTS PRINCIPALES</h3>
+    <div class="code-block">
+<span class="code-comment">// Autenticación</span>
+<span class="code-key">POST</span>  /api/v1/auth/token
+
+<span class="code-comment">// Eventos de Turno</span>
+<span class="code-key">POST</span>  /api/v1/events/checkin          <span class="code-comment">// Registro inicio turno</span>
+<span class="code-key">POST</span>  /api/v1/events/checkout         <span class="code-comment">// Registro fin turno</span>
+<span class="code-key">POST</span>  /api/v1/events/ot/start         <span class="code-comment">// Inicio overtime</span>
+<span class="code-key">POST</span>  /api/v1/events/ot/end           <span class="code-comment">// Fin overtime</span>
+
+<span class="code-comment">// Consultas</span>
+<span class="code-key">GET</span>   /api/v1/employees/active        <span class="code-comment">// Empleados en turno activo</span>
+<span class="code-key">GET</span>   /api/v1/ot/pending              <span class="code-comment">// OT pendientes de aprobación</span>
+<span class="code-key">GET</span>   /api/v1/costs/daily             <span class="code-comment">// Costos del día</span>
+<span class="code-key">GET</span>   /api/v1/analytics/productivity  <span class="code-comment">// KPIs productividad</span>
+
+<span class="code-comment">// Webhook para ERP</span>
+<span class="code-key">POST</span>  /api/v1/webhooks/erp-sync       <span class="code-comment">// Sync automático nómina</span>
+    </div>
+  </div>
+</div>
+
+<!-- 4. ESTRUCTURA DE COSTOS -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">04</span>
+    <span class="section-title">ESTRUCTURA DE COSTOS Y ROI</span>
+  </div>
+  <div class="section-body">
+    <div class="grid2">
+      <div>
+        <h3>INVERSIÓN (AÑO 1)</h3>
+        <table class="spec-table">
+          <thead><tr><th>CONCEPTO</th><th>COSTO</th><th>TIPO</th></tr></thead>
+          <tbody>
+            <tr><td>Hardware: cámaras 4K + edge AI / site</td><td><strong>$12,000</strong></td><td><span class="tag gold">CAPEX</span></td></tr>
+            <tr><td>Licencia software SaaS (anual)</td><td><strong>$6,000</strong></td><td><span class="tag blue">OPEX</span></td></tr>
+            <tr><td>Implementación + integración ERP</td><td><strong>$8,500</strong></td><td><span class="tag gold">CAPEX</span></td></tr>
+            <tr><td>Capacitación y soporte año 1</td><td><strong>$3,500</strong></td><td><span class="tag blue">OPEX</span></td></tr>
+            <tr style="background:var(--accent);"><td><strong>TOTAL INVERSIÓN AÑO 1</strong></td><td><strong style="color:var(--cyan)">$30,000</strong></td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>AHORRO PROYECTADO (ANUAL)</h3>
+        <table class="spec-table">
+          <thead><tr><th>FUENTE DE AHORRO</th><th>MONTO</th><th>BASE</th></tr></thead>
+          <tbody>
+            <tr><td>Reducción overtime no justificado −40%</td><td><strong style="color:var(--green)">$28,800</strong></td><td>50 emp.</td></tr>
+            <tr><td>Eliminación buddy punching</td><td><strong style="color:var(--green)">$14,400</strong></td><td>25% fraude</td></tr>
+            <tr><td>Mejora productividad operativa +15%</td><td><strong style="color:var(--green)">$42,000</strong></td><td>Throughput</td></tr>
+            <tr><td>Reducción gestión manual RRHH</td><td><strong style="color:var(--green)">$9,600</strong></td><td>160h/año</td></tr>
+            <tr style="background:var(--accent);"><td><strong>TOTAL AHORRO ANUAL</strong></td><td><strong style="color:var(--green)">$94,800</strong></td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#e8f9f0,#e8f4ff);border:1px solid rgba(26,138,74,.2);border-radius:6px;padding:20px 24px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--green);letter-spacing:3px;margin-bottom:4px;">RETORNO DE INVERSIÓN — AÑO 1</div>
+        <div style="font-family:'Orbitron',monospace;font-size:36px;font-weight:700;color:var(--green);">316% ROI</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Payback period: 3.8 meses</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px;color:var(--muted);">Beneficio neto año 1</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--green);">$64,800</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Beneficio acumulado 3 años: <strong>+$250,000</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. ROADMAP -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">05</span>
+    <span class="section-title">PLAN DE IMPLEMENTACIÓN — 12 SEMANAS</span>
+  </div>
+  <div class="section-body">
+    <div class="tl-doc">
+      <div class="tl-item-doc p1">
+        <div class="tl-dot-doc"></div>
+        <div class="tl-week">SEMANAS 1–3</div>
+        <div class="tl-title-doc">FASE 1 — Infraestructura y Hardware</div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Instalación física de cámaras, servidores Edge AI, configuración de red VLAN y servidor biométrico central.</p>
+        <div class="tl-tasks-doc">
+          <span class="tl-tag">Instalación cámaras IP 4K</span>
+          <span class="tl-tag">Edge AI NVIDIA Jetson</span>
+          <span class="tl-tag">Red VLAN dedicada</span>
+          <span class="tl-tag">Servidor biométrico</span>
+          <span class="tl-tag">Cableado estructurado</span>
+        </div>
+      </div>
+      <div class="tl-item-doc p2">
+        <div class="tl-dot-doc"></div>
+        <div class="tl-week">SEMANAS 4–7</div>
+        <div class="tl-title-doc">FASE 2 — Configuración del Motor CV</div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Enrolamiento facial de todos los empleados, configuración de zonas 4D, reglas de negocio OT y calibración de modelos.</p>
+        <div class="tl-tasks-doc">
+          <span class="tl-tag">Enrolamiento biométrico</span>
+          <span class="tl-tag">Mapeo zonas 3D</span>
+          <span class="tl-tag">Reglas OT</span>
+          <span class="tl-tag">Fine-tuning ArcFace</span>
+          <span class="tl-tag">Pruebas de precisión</span>
+        </div>
+      </div>
+      <div class="tl-item-doc p3">
+        <div class="tl-dot-doc"></div>
+        <div class="tl-week">SEMANAS 8–10</div>
+        <div class="tl-title-doc">FASE 3 — Integración ERP y Dashboard</div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Conexión API REST con sistema de nómina, configuración del dashboard 4D, alertas y pruebas de usuario.</p>
+        <div class="tl-tasks-doc">
+          <span class="tl-tag">API REST nómina</span>
+          <span class="tl-tag">Dashboard 4D</span>
+          <span class="tl-tag">Sistema de alertas</span>
+          <span class="tl-tag">Pruebas UAT</span>
+        </div>
+      </div>
+      <div class="tl-item-doc p4">
+        <div class="tl-dot-doc"></div>
+        <div class="tl-week">SEMANAS 11–12</div>
+        <div class="tl-title-doc">FASE 4 — Go-Live y Optimización</div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Arranque en producción con soporte hipercare 30 días, capacitación de supervisores y ajuste fino de modelos.</p>
+        <div class="tl-tasks-doc">
+          <span class="tl-tag">Capacitación equipos</span>
+          <span class="tl-tag">Arranque producción</span>
+          <span class="tl-tag">Monitoreo 24/7</span>
+          <span class="tl-tag">Soporte hipercare</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. MÉTRICAS DE ÉXITO -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">06</span>
+    <span class="section-title">MÉTRICAS DE ÉXITO Y SLAs</span>
+  </div>
+  <div class="section-body">
+    <table class="spec-table">
+      <thead><tr><th>KPI</th><th>LÍNEA BASE</th><th>META 6 MESES</th><th>META 12 MESES</th><th>STATUS</th></tr></thead>
+      <tbody>
+        <tr><td>Precisión reconocimiento facial</td><td>N/A</td><td>≥ 98%</td><td>≥ 99.4%</td><td><span class="tag blue">EN PROGRESO</span></td></tr>
+        <tr><td>Reducción costo overtime</td><td>Base actual</td><td>−25%</td><td>−40%</td><td><span class="tag green">ON TRACK</span></td></tr>
+        <tr><td>Puntualidad de empleados</td><td>78%</td><td>88%</td><td>94%</td><td><span class="tag green">ON TRACK</span></td></tr>
+        <tr><td>Latencia del sistema</td><td>—</td><td>≤ 300ms</td><td>≤ 200ms</td><td><span class="tag blue">DISEÑO</span></td></tr>
+        <tr><td>Uptime del sistema</td><td>—</td><td>≥ 99%</td><td>≥ 99.5%</td><td><span class="tag blue">DISEÑO</span></td></tr>
+        <tr><td>Tiempo reportes nómina</td><td>3-5 días</td><td>Mismo día</td><td>Tiempo real</td><td><span class="tag gold">PLANIFICADO</span></td></tr>
+        <tr><td>Reducción disputas nómina</td><td>Frecuentes</td><td>−60%</td><td>−90%</td><td><span class="tag gold">PLANIFICADO</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <span class="footer-logo">ASSISTANTTRACK 4D</span>
+  <span>Documento confidencial — v2.1.0 — Todos los derechos reservados © 2026</span>
+  <span>Computer Vision Workforce Intelligence</span>
+</div>
+
+</div>
+</body>
+</html>

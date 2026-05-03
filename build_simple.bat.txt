@@ -1,0 +1,16 @@
+@echo off
+echo Compilando AssistantTrack 4D...
+echo.
+
+REM Actualizar pip
+python -m pip install --upgrade pip setuptools wheel
+
+REM Instalar solo lo esencial
+pip install pyinstaller
+
+REM Compilar sin dependencias complejas
+pyinstaller --onefile --windowed --name "AssistantTrack4D" run_agent.py
+
+echo.
+echo Si ves el .exe en la carpeta dist, funciono!
+pause

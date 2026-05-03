@@ -1,0 +1,22 @@
+# Agente IA - Requisitos de Python
+# MAI 630 Computer Vision - Atlantis University
+# Versión: 2026-04-26
+
+# Dependencias principales (ninguna librería externa requerida)
+# El agente usa solo librerías estándar de Python:
+# - csv (análisis de datos)
+# - os (gestión de archivos)
+# - datetime (timestamps)
+# - pathlib (rutas)
+# - random (selección de respuestas)
+# - sys (control del programa)
+
+# Para desarrollo opcional:
+# - pytest (pruebas unitarias)
+# - black (formateo de código)
+
+# Para empaquetamiento (Windows):
+pyinstaller==6.8.1
+
+# Nota: Google Colab incluye todas las librerías estándar de Python.
+# No necesitas instalar nada adicional para ejecutar en Colab.

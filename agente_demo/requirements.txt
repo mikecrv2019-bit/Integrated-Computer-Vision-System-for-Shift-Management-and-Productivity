@@ -1,0 +1,16 @@
+# =============================================================================
+# AGENTE DE IA - PROCESAMIENTO DE IMÁGENES
+# MAI 630 Computer Vision | Atlantis University
+# =============================================================================
+
+# Dependencias principales
+opencv-python==4.8.1.78
+Pillow==10.1.0
+numpy==1.24.3
+
+# Para empaquetado a .exe (Windows)
+pyinstaller==6.3.0
+
+# Opcional: si decides usar módulos adicionales en el futuro
+# scipy==1.11.4
+# scikit-image==0.22.0

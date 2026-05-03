@@ -1,0 +1,68 @@
+[
+  {
+    "timestamp": "2026-03-30T07:20:00",
+    "emp_id": "EMP-001",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 20 min — María García"
+  },
+  {
+    "timestamp": "2026-03-30T07:25:00",
+    "emp_id": "EMP-002",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 25 min — Carlos López"
+  },
+  {
+    "timestamp": "2026-03-30T07:00:00",
+    "emp_id": "EMP-003",
+    "nivel": "INFO",
+    "mensaje": "Ausencia no justificada — Ana Martínez"
+  },
+  {
+    "timestamp": "2026-03-30T07:15:00",
+    "emp_id": "EMP-005",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 15 min — Rosa Jiménez"
+  },
+  {
+    "timestamp": "2026-03-31T07:00:00",
+    "emp_id": "EMP-001",
+    "nivel": "INFO",
+    "mensaje": "Ausencia no justificada — María García"
+  },
+  {
+    "timestamp": "2026-03-31T07:33:00",
+    "emp_id": "EMP-005",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 33 min — Rosa Jiménez"
+  },
+  {
+    "timestamp": "2026-04-01T07:00:00",
+    "emp_id": "EMP-006",
+    "nivel": "INFO",
+    "mensaje": "Ausencia no justificada — Pedro Ruiz"
+  },
+  {
+    "timestamp": "2026-04-01T07:12:00",
+    "emp_id": "EMP-010",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 12 min — Miguel Flores"
+  },
+  {
+    "timestamp": "2026-04-02T07:16:00",
+    "emp_id": "EMP-006",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 16 min — Pedro Ruiz"
+  },
+  {
+    "timestamp": "2026-04-02T07:16:00",
+    "emp_id": "EMP-009",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 16 min — Laura Sánchez"
+  },
+  {
+    "timestamp": "2026-04-03T07:21:00",
+    "emp_id": "EMP-009",
+    "nivel": "WARNING",
+    "mensaje": "Tardanza de 21 min — Laura Sánchez"
+  }
+]

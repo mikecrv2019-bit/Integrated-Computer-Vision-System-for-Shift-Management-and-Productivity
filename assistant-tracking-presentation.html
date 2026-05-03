@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AssistantTrack 4D — Computer Vision Workforce Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020810;
+    --panel: #060f1e;
+    --panel2: #091524;
+    --cyan: #00e5ff;
+    --blue: #0066ff;
+    --teal: #00c9b1;
+    --gold: #ffcc00;
+    --red: #ff3a5c;
+    --green: #00e676;
+    --white: #e8f4fd;
+    --muted: #4a6a8a;
+    --glow: 0 0 20px rgba(0,229,255,0.3);
+    --glow2: 0 0 40px rgba(0,102,255,0.2);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ──────────── SLIDES ──────────── */
+  .slide {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+
+  /* grid scanlines overlay */
+  .slide::before {
+    content:'';
+    position:absolute; inset:0; pointer-events:none; z-index:1;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,229,255,0.015) 4px);
+  }
+
+  /* ──────────── NAV ──────────── */
+  .nav {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 999; align-items: center;
+  }
+  .nav-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--muted); cursor: pointer; transition: all .3s;
+  }
+  .nav-dot.active { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+
+  .nav-btn {
+    background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3);
+    color: var(--cyan); padding: 8px 20px; border-radius: 4px;
+    cursor: pointer; font-family: 'Exo 2', sans-serif; font-size: 13px;
+    letter-spacing: 1px; transition: all .2s;
+  }
+  .nav-btn:hover { background: rgba(0,229,255,0.2); box-shadow: var(--glow); }
+
+  /* ──────────── SLIDE 1: COVER ──────────── */
+  #s1 {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, #001a3a 0%, #020810 70%);
+  }
+
+  .hex-grid {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+  .hex-grid svg { width:100%; height:100%; opacity:0.08; }
+
+  .scan-line {
+    position:absolute; width:100%; height:2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 4s linear infinite; top: 0;
+  }
+  @keyframes scan { 0%{ top: -2px } 100%{ top: 100vh } }
+
+  .cover-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px; letter-spacing: 4px; color: var(--teal);
+    border: 1px solid rgba(0,201,177,0.4); padding: 6px 20px;
+    border-radius: 2px; margin-bottom: 28px;
+    animation: fadeUp 1s ease .2s both;
+  }
+
+  .cover-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(36px, 6vw, 72px); font-weight: 900;
+    line-height: 1.05;
+    background: linear-gradient(135deg, var(--white) 30%, var(--cyan) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-align: center; margin-bottom: 8px;
+    animation: fadeUp 1s ease .4s both;
+  }
+
+  .cover-sub {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(12px, 2vw, 18px); color: var(--blue);
+    letter-spacing: 6px; text-align: center; margin-bottom: 32px;
+    animation: fadeUp 1s ease .6s both;
+  }
+
+  .cover-desc {
+    font-size: 15px; color: rgba(232,244,253,0.6); text-align: center;
+    max-width: 560px; line-height: 1.7;
+    animation: fadeUp 1s ease .8s both;
+  }
+
+  .cv-badge {
+    margin-top: 40px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 1s ease 1s both;
+  }
+  .cv-chip {
+    border: 1px solid rgba(0,229,255,0.25); padding: 6px 16px; border-radius: 2px;
+    font-size: 11px; letter-spacing: 2px; color: var(--cyan);
+    background: rgba(0,229,255,0.05);
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* corner decorations */
+  .corner { position: absolute; width: 60px; height: 60px; }
+  .corner::before, .corner::after { content:''; position:absolute; background: var(--cyan); }
+  .corner.tl { top:20px; left:20px; }
+  .corner.tl::before { width:2px; height:40px; }
+  .corner.tl::after  { width:40px; height:2px; }
+  .corner.tr { top:20px; right:20px; }
+  .corner.tr::before { width:2px; height:40px; right:0; }
+  .corner.tr::after  { width:40px; height:2px; right:0; }
+  .corner.bl { bottom:60px; left:20px; }
+  .corner.bl::before { width:2px; height:40px; bottom:0; }
+  .corner.bl::after  { width:40px; height:2px; bottom:0; }
+  .corner.br { bottom:60px; right:20px; }
+  .corner.br::before { width:2px; height:40px; bottom:0; right:0; }
+  .corner.br::after  { width:40px; height:2px; bottom:0; right:0; }
+
+  /* ──────────── GENERIC LAYOUT ──────────── */
+  .slide-inner {
+    width:100%; height:100%; display:flex; flex-direction:column;
+    padding: 48px 64px 80px; position: relative; z-index:2;
+  }
+
+  .slide-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px; letter-spacing: 4px; color: var(--teal);
+    margin-bottom: 6px; opacity: .7;
+  }
+
+  .slide-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(20px, 3vw, 36px); font-weight: 700; color: var(--white);
+    margin-bottom: 32px; border-bottom: 1px solid rgba(0,229,255,0.15); padding-bottom: 16px;
+  }
+  .slide-title span { color: var(--cyan); }
+
+  /* ──────────── SLIDE 2: PROBLEMA ──────────── */
+  #s2 {
+    background: linear-gradient(135deg, #020810 0%, #060f1e 100%);
+    align-items: stretch;
+  }
+
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex:1; }
+  
+  .problem-card {
+    background: rgba(255,58,92,0.06); border: 1px solid rgba(255,58,92,0.2);
+    border-radius: 4px; padding: 24px; display: flex; flex-direction: column; gap: 12px;
+    position: relative; overflow: hidden;
+  }
+  .problem-card::before {
+    content:''; position:absolute; left:0; top:0; width:3px; height:100%;
+    background: var(--red);
+  }
+  .problem-icon { font-size: 28px; }
+  .problem-title { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--red); letter-spacing:2px; }
+  .problem-stat { font-family: 'Orbitron', monospace; font-size: 36px; font-weight: 900; color: var(--red); }
+  .problem-desc { font-size: 13px; color: rgba(232,244,253,0.6); line-height: 1.6; }
+
+  /* ──────────── SLIDE 3: DIAGRAMA FLUJO ──────────── */
+  #s3 {
+    background: linear-gradient(160deg, #020810 0%, #041020 100%);
+    align-items: stretch;
+  }
+
+  .flow-container { flex:1; display: flex; align-items: center; justify-content: center; }
+  .flow-diagram {
+    display: flex; align-items: center; gap: 0; width: 100%;
+    justify-content: center;
+  }
+
+  .flow-node {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    min-width: 140px;
+  }
+  .flow-box {
+    padding: 14px 18px; border-radius: 4px; text-align: center;
+    font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 1px;
+    border: 1px solid; width: 140px;
+    position: relative;
+  }
+  .flow-icon { font-size: 20px; margin-bottom: 6px; }
+  .flow-time { font-size: 9px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
+
+  .fnode-entrada .flow-box { border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.08); color: var(--cyan); }
+  .fnode-salida .flow-box  { border-color: rgba(0,102,255,0.4); background: rgba(0,102,255,0.08); color: #6699ff; }
+  .fnode-ot1 .flow-box    { border-color: rgba(255,204,0,0.4); background: rgba(255,204,0,0.08); color: var(--gold); }
+  .fnode-ot2 .flow-box    { border-color: rgba(0,230,118,0.4); background: rgba(0,230,118,0.08); color: var(--green); }
+  .fnode-cv .flow-box     { border-color: rgba(0,201,177,0.4); background: rgba(0,201,177,0.08); color: var(--teal); }
+  .fnode-alert .flow-box  { border-color: rgba(255,58,92,0.4); background: rgba(255,58,92,0.08); color: var(--red); }
+
+  .flow-arrow {
+    width: 40px; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 18px; flex-shrink: 0;
+  }
+  .flow-arrow::after {
+    content: '▶'; color: rgba(0,229,255,0.4);
+  }
+
+  .flow-legend {
+    display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted);
+  }
+  .legend-dot { width:8px; height:8px; border-radius:50%; }
+
+  /* ──────────── SLIDE 4: SOLUCIÓN CV ──────────── */
+  #s4 {
+    background: radial-gradient(ellipse 60% 80% at 80% 50%, #001a3a 0%, #020810 60%);
+    align-items: stretch;
+  }
+
+  .solution-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; flex:1; }
+
+  .sol-features { display: flex; flex-direction: column; gap: 14px; }
+  .sol-feature {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px; border-radius: 4px;
+    background: rgba(0,229,255,0.04); border: 1px solid rgba(0,229,255,0.1);
+    transition: all .2s;
+  }
+  .sol-feature:hover { background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.3); }
+  .sol-icon { font-size: 22px; flex-shrink:0; margin-top: 2px; }
+  .sol-title { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--cyan); letter-spacing: 2px; margin-bottom: 6px; }
+  .sol-desc { font-size: 12px; color: rgba(232,244,253,0.6); line-height: 1.5; }
+
+  .cv-visual {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  }
+  .cv-screen {
+    width: 100%; aspect-ratio: 16/9; background: #000;
+    border: 2px solid rgba(0,229,255,0.3); border-radius: 4px; position: relative;
+    overflow: hidden;
+  }
+  .cv-screen-inner {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #001020, #000);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cv-crosshair {
+    width: 80px; height: 80px; border: 2px solid var(--cyan); border-radius: 50%;
+    position: relative;
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); }
+    50%      { box-shadow: 0 0 0 20px rgba(0,229,255,0); }
+  }
+  .cv-crosshair::before, .cv-crosshair::after {
+    content:''; position:absolute; background: var(--cyan);
+  }
+  .cv-crosshair::before { width:2px; height:40px; left:50%; top:-10px; transform: translateX(-50%); }
+  .cv-crosshair::after  { width:40px; height:2px; top:50%; left:-10px; transform: translateY(-50%); }
+
+  .cv-stats-row { display: flex; gap: 12px; width: 100%; }
+  .cv-stat {
+    flex:1; text-align: center; padding: 10px;
+    border: 1px solid rgba(0,229,255,0.15); border-radius: 4px;
+    background: rgba(0,229,255,0.04);
+  }
+  .cv-stat-n { font-family: 'Orbitron', monospace; font-size: 22px; color: var(--cyan); }
+  .cv-stat-l { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+
+  /* ──────────── SLIDE 5: 4D TECH ──────────── */
+  #s5 {
+    background: linear-gradient(200deg, #020810 0%, #050e1c 100%);
+    align-items: stretch;
+  }
+
+  .dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+  .dim-card {
+    border-radius: 6px; padding: 24px; position: relative; overflow: hidden;
+  }
+  .dim-card::after {
+    content: attr(data-num);
+    position: absolute; right: 16px; bottom: 10px;
+    font-family: 'Orbitron', monospace; font-size: 80px; font-weight: 900;
+    opacity: 0.06; line-height: 1;
+  }
+  .dim1 { background: rgba(0,229,255,0.05); border: 1px solid rgba(0,229,255,0.2); }
+  .dim2 { background: rgba(0,102,255,0.05); border: 1px solid rgba(0,102,255,0.2); }
+  .dim3 { background: rgba(255,204,0,0.05); border: 1px solid rgba(255,204,0,0.2); }
+  .dim4 { background: rgba(0,230,118,0.05); border: 1px solid rgba(0,230,118,0.2); }
+
+  .dim-label {
+    font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+  .dim1 .dim-label { color: var(--cyan); }
+  .dim2 .dim-label { color: #6699ff; }
+  .dim3 .dim-label { color: var(--gold); }
+  .dim4 .dim-label { color: var(--green); }
+
+  .dim-title { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+  .dim-items { display: flex; flex-direction: column; gap: 6px; }
+  .dim-item { font-size: 12px; color: rgba(232,244,253,0.65); padding-left: 14px; position: relative; }
+  .dim-item::before { content:'▸'; position:absolute; left:0; }
+  .dim1 .dim-item::before { color: var(--cyan); }
+  .dim2 .dim-item::before { color: #6699ff; }
+  .dim3 .dim-item::before { color: var(--gold); }
+  .dim4 .dim-item::before { color: var(--green); }
+
+  /* ──────────── SLIDE 6: COSTOS ──────────── */
+  #s6 {
+    background: linear-gradient(160deg, #020810 0%, #060f1e 100%);
+    align-items: stretch;
+  }
+
+  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; }
+  .cost-section { display: flex; flex-direction: column; gap: 14px; }
+
+  .cost-header {
+    font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 3px;
+    padding-bottom: 10px; border-bottom: 1px solid;
+  }
+  .cost-header.red  { color: var(--red);   border-color: rgba(255,58,92,0.3); }
+  .cost-header.green{ color: var(--green); border-color: rgba(0,230,118,0.3); }
+
+  .cost-table { display: flex; flex-direction: column; gap: 8px; }
+  .cost-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; border-radius: 4px;
+    font-size: 12px;
+  }
+  .cost-row.red-row  { background: rgba(255,58,92,0.06); border: 1px solid rgba(255,58,92,0.15); }
+  .cost-row.green-row{ background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.15); }
+  .cost-row.total-row {
+    background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.3);
+    font-family: 'Orbitron', monospace; font-size: 13px;
+  }
+  .cost-val { font-family: 'Orbitron', monospace; font-weight: 700; }
+  .cost-val.red   { color: var(--red); }
+  .cost-val.green { color: var(--green); }
+  .cost-val.cyan  { color: var(--cyan); }
+
+  .roi-banner {
+    grid-column: 1/-1; background: linear-gradient(135deg, rgba(0,230,118,0.1), rgba(0,229,255,0.1));
+    border: 1px solid rgba(0,230,118,0.3); border-radius: 6px;
+    padding: 20px 28px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .roi-label { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--green); margin-bottom: 4px; }
+  .roi-val   { font-family: 'Orbitron', monospace; font-size: 40px; font-weight: 900; color: var(--green); }
+  .roi-desc  { font-size: 12px; color: rgba(232,244,253,0.55); max-width: 360px; line-height: 1.6; }
+
+  /* ──────────── SLIDE 7: TIMELINE ──────────── */
+  #s7 {
+    background: linear-gradient(200deg, #020810 0%, #041020 100%);
+    align-items: stretch;
+  }
+
+  .timeline { flex:1; display: flex; flex-direction: column; justify-content: space-around; position: relative; }
+  .tl-line {
+    position: absolute; left: 48px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(180deg, var(--cyan), var(--blue), var(--teal));
+  }
+
+  .tl-item { display: flex; gap: 24px; align-items: flex-start; position: relative; z-index:2; }
+  .tl-dot {
+    width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+    margin-left: 39px; border: 2px solid;
+    background: var(--bg); position: relative; top: 4px;
+  }
+  .tl-item.phase1 .tl-dot { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,229,255,0.5); }
+  .tl-item.phase2 .tl-dot { border-color: var(--blue); box-shadow: 0 0 10px rgba(0,102,255,0.5); }
+  .tl-item.phase3 .tl-dot { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,204,0,0.5); }
+  .tl-item.phase4 .tl-dot { border-color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.5); }
+
+  .tl-content { flex:1; }
+  .tl-phase { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: var(--muted); margin-bottom: 4px; }
+  .tl-title { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+  .tl-tasks { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tl-task {
+    font-size: 11px; padding: 4px 10px; border-radius: 2px; border: 1px solid;
+  }
+  .phase1 .tl-task { color: var(--cyan); border-color: rgba(0,229,255,0.25); background: rgba(0,229,255,0.06); }
+  .phase2 .tl-task { color: #6699ff; border-color: rgba(0,102,255,0.25); background: rgba(0,102,255,0.06); }
+  .phase3 .tl-task { color: var(--gold); border-color: rgba(255,204,0,0.25); background: rgba(255,204,0,0.06); }
+  .phase4 .tl-task { color: var(--green); border-color: rgba(0,230,118,0.25); background: rgba(0,230,118,0.06); }
+
+  /* ──────────── SLIDE 8: CIERRE ──────────── */
+  #s8 {
+    flex-direction: column; justify-content: center; align-items: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, #001530 0%, #020810 70%);
+  }
+
+  .close-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(20px, 4vw, 48px); font-weight: 900; text-align: center;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--green) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+    animation: fadeUp 1s ease .2s both;
+  }
+  .close-sub {
+    font-size: 14px; color: rgba(232,244,253,0.5); text-align: center; letter-spacing: 2px;
+    margin-bottom: 40px;
+    animation: fadeUp 1s ease .4s both;
+  }
+
+  .kpi-row {
+    display: flex; gap: 24px; margin-bottom: 40px;
+    animation: fadeUp 1s ease .6s both;
+  }
+  .kpi-box {
+    text-align: center; padding: 20px 28px;
+    border: 1px solid rgba(0,229,255,0.2); border-radius: 4px;
+    background: rgba(0,229,255,0.04);
+    min-width: 140px;
+  }
+  .kpi-n { font-family: 'Orbitron', monospace; font-size: 36px; font-weight: 900; color: var(--cyan); }
+  .kpi-l { font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; }
+
+  .cta-btn {
+    font-family: 'Orbitron', monospace; font-size: 12px; letter-spacing: 3px;
+    padding: 14px 36px; border: 1px solid var(--cyan); background: rgba(0,229,255,0.1);
+    color: var(--cyan); border-radius: 4px; cursor: pointer; transition: all .2s;
+    text-decoration: none; display: inline-block;
+    animation: fadeUp 1s ease .8s both;
+  }
+  .cta-btn:hover { background: rgba(0,229,255,0.2); box-shadow: var(--glow); }
+
+  /* slide counter */
+  .slide-counter {
+    position: fixed; top: 24px; right: 32px; z-index: 999;
+    font-family: 'Orbitron', monospace; font-size: 11px; color: var(--muted);
+  }
+  .slide-counter span { color: var(--cyan); }
+
+  /* progress bar */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 2px; background: var(--cyan);
+    transition: width .4s ease; z-index: 9999;
+    box-shadow: 0 0 10px var(--cyan);
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="slide-counter"><span id="curr">1</span> / 8</div>
+
+<!-- ═══════════════ SLIDE 1: COVER ═══════════════ -->
+<div class="slide active" id="s1">
+  <div class="scan-line"></div>
+  <div class="hex-grid">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+      <defs><pattern id="hex" width="60" height="52" patternUnits="userSpaceOnUse" patternTransform="scale(1.2)">
+        <polygon points="30,0 60,15 60,38 30,52 0,38 0,15" fill="none" stroke="#00e5ff" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#hex)"/>
+    </svg>
+  </div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
+    <div class="cover-badge">COMPUTER VISION · WORKFORCE INTELLIGENCE</div>
+    <div class="cover-title">ASSISTANT<br>TRACK 4D</div>
+    <div class="cover-sub">TURNO · OVERTIME · CONTROL · PRODUCTIVIDAD</div>
+    <div class="cover-desc">
+      Sistema inteligente de seguimiento de turnos y horas extra mediante 
+      Visión por Computadora 4D — detección en tiempo real, reducción de costos 
+      y máxima productividad operativa.
+    </div>
+    <div class="cv-badge">
+      <span class="cv-chip">⦿ FACE RECOGNITION</span>
+      <span class="cv-chip">⦿ POSE DETECTION</span>
+      <span class="cv-chip">⦿ TEMPORAL ANALYTICS</span>
+      <span class="cv-chip">⦿ EDGE AI</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 2: PROBLEMA ═══════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-inner">
+    <div class="slide-label">DIAGNÓSTICO DEL PROBLEMA</div>
+    <div class="slide-title">El Costo <span>Oculto</span> de la Ineficiencia</div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">⏰</div>
+        <div class="problem-title">MARCACIONES MANUALES</div>
+        <div class="problem-stat">73%</div>
+        <div class="problem-desc">de empresas con control manual registran inconsistencias en horarios de entrada y salida, generando disputas de nómina.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">💸</div>
+        <div class="problem-title">OVERTIME NO AUTORIZADO</div>
+        <div class="problem-stat">$18K</div>
+        <div class="problem-desc">promedio anual en costos de horas extra no justificadas por empleado operativo en manufactura y retail.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">📉</div>
+        <div class="problem-title">BAJA PRODUCTIVIDAD</div>
+        <div class="problem-stat">31%</div>
+        <div class="problem-desc">del tiempo laboral se pierde en tareas improductivas no monitoreadas. Sin visibilidad no hay mejora posible.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🚨</div>
+        <div class="problem-title">FRAUDE DE ASISTENCIA</div>
+        <div class="problem-stat">1 de 4</div>
+        <div class="problem-desc">empleados en sistemas de tarjeta física comete o permite "buddy punching" — marcación por terceros.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 3: DIAGRAMA FLUJO ═══════════════ -->
+<div class="slide" id="s3">
+  <div class="slide-inner">
+    <div class="slide-label">ARQUITECTURA DEL PROCESO</div>
+    <div class="slide-title">Diagrama de <span>Flujo</span> del Sistema</div>
+    <div class="flow-container">
+      <div style="display:flex;flex-direction:column;gap:20px;width:100%;">
+        <!-- Row 1 -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;">
+          <div class="flow-node fnode-cv">
+            <div class="flow-box">
+              <div class="flow-icon">📷</div>
+              CÁMARA CV<br>ACTIVA
+              <div class="flow-time">CONTINUO</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node fnode-entrada">
+            <div class="flow-box">
+              <div class="flow-icon">🟢</div>
+              INICIO<br>DE TURNO
+              <div class="flow-time">CHECK-IN</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node fnode-salida">
+            <div class="flow-box">
+              <div class="flow-icon">🔵</div>
+              FIN DE<br>JORNADA
+              <div class="flow-time">CHECK-OUT</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node fnode-ot1">
+            <div class="flow-box">
+              <div class="flow-icon">⚡</div>
+              INICIO<br>OVERTIME
+              <div class="flow-time">OT START</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node fnode-ot2">
+            <div class="flow-box">
+              <div class="flow-icon">🏁</div>
+              FIN<br>OVERTIME
+              <div class="flow-time">OT END</div>
+            </div>
+          </div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node fnode-alert">
+            <div class="flow-box">
+              <div class="flow-icon">📊</div>
+              REPORTE<br>& ALERTA
+              <div class="flow-time">REAL-TIME</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Process detail row -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px;">
+          <div style="background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.15);border-radius:4px;padding:14px;">
+            <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:8px;">DETECCIÓN FACIAL</div>
+            <div style="font-size:11px;color:rgba(232,244,253,0.6);line-height:1.5;">Reconocimiento biométrico con liveness detection. Anti-spoofing 3D integrado. Latencia &lt; 200ms.</div>
+          </div>
+          <div style="background:rgba(0,102,255,0.05);border:1px solid rgba(0,102,255,0.15);border-radius:4px;padding:14px;">
+            <div style="font-family:'Orbitron',monospace;font-size:9px;color:#6699ff;letter-spacing:2px;margin-bottom:8px;">VALIDACIÓN TURNO</div>
+            <div style="font-size:11px;color:rgba(232,244,253,0.6);line-height:1.5;">Cruce con horario programado. Alertas por llegada tardía, ausencia o abandono de puesto.</div>
+          </div>
+          <div style="background:rgba(255,204,0,0.05);border:1px solid rgba(255,204,0,0.15);border-radius:4px;padding:14px;">
+            <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">CONTROL OVERTIME</div>
+            <div style="font-size:11px;color:rgba(232,244,253,0.6);line-height:1.5;">Activación de OT solo con aprobación gerencial. Cálculo automático de costo incremental.</div>
+          </div>
+          <div style="background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);border-radius:4px;padding:14px;">
+            <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:8px;">DASHBOARD 4D</div>
+            <div style="font-size:11px;color:rgba(232,244,253,0.6);line-height:1.5;">Vista espacial 4D del piso operativo. Heatmaps de actividad. Reportes automatizados.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 4: SOLUCIÓN CV ═══════════════ -->
+<div class="slide" id="s4">
+  <div class="slide-inner">
+    <div class="slide-label">PLATAFORMA TÉCNICA</div>
+    <div class="slide-title">Solución <span>Computer Vision</span></div>
+    <div class="solution-grid">
+      <div class="sol-features">
+        <div class="sol-feature">
+          <div class="sol-icon">🎯</div>
+          <div>
+            <div class="sol-title">RECONOCIMIENTO FACIAL BIOMÉTRICO</div>
+            <div class="sol-desc">Modelo deep learning (ArcFace + InsightFace). Identificación en condiciones de baja iluminación, ángulos oblicuos y oclusión parcial. Precisión 99.4%.</div>
+          </div>
+        </div>
+        <div class="sol-feature">
+          <div class="sol-icon">🧍</div>
+          <div>
+            <div class="sol-title">DETECCIÓN DE PRESENCIA Y POSTURA</div>
+            <div class="sol-desc">Análisis de pose corporal (MediaPipe Pose). Detecta inactividad prolongada, abandono de zona asignada y comportamiento fuera de protocolo.</div>
+          </div>
+        </div>
+        <div class="sol-feature">
+          <div class="sol-icon">⏱️</div>
+          <div>
+            <div class="sol-title">TIMESTAMPING AUTOMÁTICO</div>
+            <div class="sol-desc">Registro automático de 4 eventos críticos: check-in turno, check-out turno, inicio OT y fin OT, con evidencia fotográfica cifrada.</div>
+          </div>
+        </div>
+        <div class="sol-feature">
+          <div class="sol-icon">🔔</div>
+          <div>
+            <div class="sol-title">ALERTAS Y APROBACIONES</div>
+            <div class="sol-desc">Notificaciones push al supervisor para OT. Alertas de presencia inusual fuera de horario. Escalamiento automático a RRHH.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-visual">
+        <div class="cv-screen">
+          <div class="cv-screen-inner">
+            <div class="cv-crosshair"></div>
+            <!-- simulated bounding box overlay -->
+            <div style="position:absolute;border:1.5px solid var(--green);width:70px;height:90px;left:30%;top:20%;"></div>
+            <div style="position:absolute;top:22%;left:31%;font-family:'Orbitron',monospace;font-size:7px;color:var(--green);background:rgba(0,0,0,0.7);padding:2px 4px;">ID:0042 ✓</div>
+            <div style="position:absolute;border:1.5px solid var(--gold);width:65px;height:85px;right:22%;top:25%;"></div>
+            <div style="position:absolute;top:27%;right:23%;font-family:'Orbitron',monospace;font-size:7px;color:var(--gold);background:rgba(0,0,0,0.7);padding:2px 4px;">OT ACTIVE</div>
+            <!-- HUD elements -->
+            <div style="position:absolute;bottom:8px;left:8px;font-family:'Orbitron',monospace;font-size:7px;color:var(--cyan);">● REC 14:32:07</div>
+            <div style="position:absolute;bottom:8px;right:8px;font-family:'Orbitron',monospace;font-size:7px;color:var(--teal);">3 DETECTED</div>
+          </div>
+        </div>
+        <div class="cv-stats-row">
+          <div class="cv-stat"><div class="cv-stat-n">99.4%</div><div class="cv-stat-l">PRECISIÓN</div></div>
+          <div class="cv-stat"><div class="cv-stat-n">&lt;200ms</div><div class="cv-stat-l">LATENCIA</div></div>
+          <div class="cv-stat"><div class="cv-stat-n">24/7</div><div class="cv-stat-l">UPTIME</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 5: 4D ═══════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-inner">
+    <div class="slide-label">DIFERENCIAL TECNOLÓGICO</div>
+    <div class="slide-title">Visión 4D — Las Cuatro <span>Dimensiones</span></div>
+    <div class="dim-grid">
+      <div class="dim-card dim1" data-num="1">
+        <div class="dim-label">DIMENSIÓN 1 — ESPACIAL</div>
+        <div class="dim-title">Posición 3D en Planta</div>
+        <div class="dim-items">
+          <div class="dim-item">Mapeo tridimensional del espacio operativo</div>
+          <div class="dim-item">Detección de zona asignada por empleado</div>
+          <div class="dim-item">Heatmap de densidad y movimiento</div>
+          <div class="dim-item">Cámaras estéreo con depth sensing</div>
+        </div>
+      </div>
+      <div class="dim-card dim2" data-num="2">
+        <div class="dim-label">DIMENSIÓN 2 — TEMPORAL</div>
+        <div class="dim-title">Eje de Tiempo Continuo</div>
+        <div class="dim-items">
+          <div class="dim-item">Tracking de presencia con precisión de segundos</div>
+          <div class="dim-item">Registro histórico inmutable por blockchain</div>
+          <div class="dim-item">Análisis de patrones temporales por turno</div>
+          <div class="dim-item">Predicción de necesidades de overtime</div>
+        </div>
+      </div>
+      <div class="dim-card dim3" data-num="3">
+        <div class="dim-label">DIMENSIÓN 3 — CONDUCTUAL</div>
+        <div class="dim-title">Análisis de Comportamiento</div>
+        <div class="dim-items">
+          <div class="dim-item">Detección de inactividad prolongada &gt; N min</div>
+          <div class="dim-item">Reconocimiento de gestos y posturas laborales</div>
+          <div class="dim-item">Score de engagement por empleado y turno</div>
+          <div class="dim-item">Alertas de comportamiento fuera de protocolo</div>
+        </div>
+      </div>
+      <div class="dim-card dim4" data-num="4">
+        <div class="dim-label">DIMENSIÓN 4 — FINANCIERA</div>
+        <div class="dim-title">Inteligencia de Costos</div>
+        <div class="dim-items">
+          <div class="dim-item">Cálculo en tiempo real de costo por hora activa</div>
+          <div class="dim-item">Proyección de OT y alerta de presupuesto</div>
+          <div class="dim-item">KPIs de productividad por turno y área</div>
+          <div class="dim-item">Integración con ERP/nómina vía API REST</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 6: COSTOS ═══════════════ -->
+<div class="slide" id="s6">
+  <div class="slide-inner">
+    <div class="slide-label">ANÁLISIS FINANCIERO</div>
+    <div class="slide-title">Estructura de <span>Costos</span> e Inversión</div>
+    <div class="cost-grid">
+      <div class="cost-section">
+        <div class="cost-header red">▲ INVERSIÓN DEL SISTEMA</div>
+        <div class="cost-table">
+          <div class="cost-row red-row">
+            <span>Hardware (cámaras + edge AI / site)</span>
+            <span class="cost-val red">$12,000</span>
+          </div>
+          <div class="cost-row red-row">
+            <span>Software licencia anual (SaaS)</span>
+            <span class="cost-val red">$6,000</span>
+          </div>
+          <div class="cost-row red-row">
+            <span>Implementación + integración ERP</span>
+            <span class="cost-val red">$8,500</span>
+          </div>
+          <div class="cost-row red-row">
+            <span>Capacitación y soporte año 1</span>
+            <span class="cost-val red">$3,500</span>
+          </div>
+          <div class="cost-row total-row">
+            <span>INVERSIÓN TOTAL AÑO 1</span>
+            <span class="cost-val cyan">$30,000</span>
+          </div>
+        </div>
+      </div>
+      <div class="cost-section">
+        <div class="cost-header green">▼ AHORRO PROYECTADO ANUAL</div>
+        <div class="cost-table">
+          <div class="cost-row green-row">
+            <span>Reducción overtime no justificado (40%)</span>
+            <span class="cost-val green">$28,800</span>
+          </div>
+          <div class="cost-row green-row">
+            <span>Eliminación buddy punching</span>
+            <span class="cost-val green">$14,400</span>
+          </div>
+          <div class="cost-row green-row">
+            <span>Mejora productividad operativa +15%</span>
+            <span class="cost-val green">$42,000</span>
+          </div>
+          <div class="cost-row green-row">
+            <span>Reducción gestión manual RRHH</span>
+            <span class="cost-val green">$9,600</span>
+          </div>
+          <div class="cost-row total-row">
+            <span>AHORRO TOTAL ANUAL</span>
+            <span class="cost-val green">$94,800</span>
+          </div>
+        </div>
+      </div>
+      <div class="roi-banner">
+        <div>
+          <div class="roi-label">RETORNO DE INVERSIÓN</div>
+          <div class="roi-val">316% ROI</div>
+        </div>
+        <div class="roi-desc">
+          El sistema se paga en <strong style="color:var(--cyan)">3.8 meses</strong>. 
+          A partir del mes 4 genera ahorro neto sostenido. 
+          En 3 años el beneficio acumulado supera <strong style="color:var(--green)">$250,000</strong> por instalación.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 7: TIMELINE ═══════════════ -->
+<div class="slide" id="s7">
+  <div class="slide-inner">
+    <div class="slide-label">PLAN DE IMPLEMENTACIÓN</div>
+    <div class="slide-title">Roadmap de <span>Despliegue</span></div>
+    <div class="timeline">
+      <div class="tl-line"></div>
+
+      <div class="tl-item phase1">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-phase">SEMANAS 1–3 · FASE 1</div>
+          <div class="tl-title">Infraestructura y Hardware</div>
+          <div class="tl-tasks">
+            <span class="tl-task">Instalación de cámaras IP 4K</span>
+            <span class="tl-task">Edge AI servers on-premise</span>
+            <span class="tl-task">Red segura VLAN dedicada</span>
+            <span class="tl-task">Servidor biométrico</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item phase2">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-phase">SEMANAS 4–7 · FASE 2</div>
+          <div class="tl-title">Configuración del Motor CV</div>
+          <div class="tl-tasks">
+            <span class="tl-task">Enrolamiento facial empleados</span>
+            <span class="tl-task">Configuración de zonas 4D</span>
+            <span class="tl-task">Integración con horarios</span>
+            <span class="tl-task">Rules engine OT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item phase3">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-phase">SEMANAS 8–10 · FASE 3</div>
+          <div class="tl-title">Integración ERP y Dashboard</div>
+          <div class="tl-tasks">
+            <span class="tl-task">API REST con nómina</span>
+            <span class="tl-task">Dashboard 4D configurado</span>
+            <span class="tl-task">Alertas y notificaciones</span>
+            <span class="tl-task">Pruebas UAT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item phase4">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-phase">SEMANAS 11–12 · FASE 4</div>
+          <div class="tl-title">Go-Live y Optimización</div>
+          <div class="tl-tasks">
+            <span class="tl-task">Capacitación supervisores</span>
+            <span class="tl-task">Arranque en producción</span>
+            <span class="tl-task">Fine-tuning modelos CV</span>
+            <span class="tl-task">Soporte hipercare 30d</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SLIDE 8: CIERRE ═══════════════ -->
+<div class="slide" id="s8">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+  <div class="scan-line" style="animation-duration:6s;opacity:.4;"></div>
+
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;">
+    <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:4px;color:var(--teal);margin-bottom:20px;animation:fadeUp 1s ease .1s both;">RESULTADO ESPERADO</div>
+    <div class="close-title">Controla tu operación.<br>Reduce costos reales.</div>
+    <div class="close-sub">ASSISTANTTRACK 4D · POWERED BY COMPUTER VISION AI</div>
+    <div class="kpi-row">
+      <div class="kpi-box"><div class="kpi-n">−40%</div><div class="kpi-l">OVERTIME</div></div>
+      <div class="kpi-box"><div class="kpi-n">+15%</div><div class="kpi-l">PRODUCTIVIDAD</div></div>
+      <div class="kpi-box"><div class="kpi-n">316%</div><div class="kpi-l">ROI AÑO 1</div></div>
+      <div class="kpi-box"><div class="kpi-n">3.8m</div><div class="kpi-l">PAYBACK</div></div>
+    </div>
+    <a class="cta-btn" href="#">SOLICITAR DEMO →</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn" onclick="prev()">◀ PREV</button>
+  <div class="nav-dot active" onclick="goto(0)"></div>
+  <div class="nav-dot" onclick="goto(1)"></div>
+  <div class="nav-dot" onclick="goto(2)"></div>
+  <div class="nav-dot" onclick="goto(3)"></div>
+  <div class="nav-dot" onclick="goto(4)"></div>
+  <div class="nav-dot" onclick="goto(5)"></div>
+  <div class="nav-dot" onclick="goto(6)"></div>
+  <div class="nav-dot" onclick="goto(7)"></div>
+  <button class="nav-btn" onclick="next()">NEXT ▶</button>
+</div>
+
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  const total = slides.length;
+
+  function show(n) {
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+    document.getElementById('curr').textContent = cur + 1;
+    document.getElementById('progress').style.width = ((cur+1)/total*100) + '%';
+  }
+  function next() { show(cur+1); }
+  function prev() { show(cur-1); }
+  function goto(n) { show(n); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+  });
+
+  // Initialize progress
+  document.getElementById('progress').style.width = (1/total*100) + '%';
+</script>
+</body>
+</html>

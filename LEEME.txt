@@ -1,0 +1,69 @@
+============================================================
+  ASSISTANTTRACK 4D — Sistema de Control Laboral con CV
+  Tesis de Maestría · MAI 630 Computer Vision
+  Atlantis University · 2024-2026
+============================================================
+
+DESCRIPCIÓN
+-----------
+AssistantTrack 4D es un agente de inteligencia artificial que
+simula un sistema de control laboral basado en Computer Vision.
+Procesa eventos de Check-In/Check-Out y Overtime de empleados,
+genera alertas automáticas y produce reportes ejecutivos en
+Excel, CSV y JSON.
+
+REQUISITOS MÍNIMOS DEL SISTEMA
+-------------------------------
+  - Sistema Operativo : Windows 10 / 11 (64 bits)
+  - RAM               : 512 MB mínimo (1 GB recomendado)
+  - Espacio en disco  : 100 MB libres
+  - Python            : NO requerido (incluido en el ejecutable)
+  - Permisos          : Escritura en la carpeta del ejecutable
+
+INSTRUCCIONES DE USO
+--------------------
+1. Descargue la carpeta completa "AssistantTrack4D_Package".
+2. Haga doble clic en "AssistantTrack4D.exe".
+3. Una ventana de consola mostrará el análisis en tiempo real.
+4. Al finalizar, la carpeta "outputs/" se creará automáticamente
+   en la misma ubicación que el .exe con los siguientes archivos:
+     - at4d_reporte.xlsx   → Reporte ejecutivo con 4 hojas
+     - at4d_alertas.json  → Registro de alertas del sistema
+     - at4d_eventos_cv.csv → Bitácora completa de eventos CV
+
+ARCHIVOS GENERADOS
+------------------
+  outputs/
+  ├── at4d_reporte.xlsx    (Reporte Excel con KPIs, gráficos y alertas)
+  ├── at4d_alertas.json   (Alertas CRITICAL / WARNING / INFO)
+  └── at4d_eventos_cv.csv (Todos los eventos CV con hash SHA-256)
+
+SOLUCIÓN DE PROBLEMAS
+---------------------
+  Problema : La ventana se cierra instantáneamente.
+  Solución  : Ejecute el .exe desde CMD para ver el error:
+              1. Abrir CMD (Win+R → cmd → Enter)
+              2. Arrastrar el .exe a la ventana de CMD
+              3. Presionar Enter y leer el mensaje de error.
+
+  Problema : "Error de DLL" al iniciar.
+  Solución  : Instalar Microsoft Visual C++ Redistributable 2015-2022
+              Descarga: https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+  Problema : No se generan los archivos de salida.
+  Solución  : Verificar permisos de escritura en la carpeta.
+              Mover el ejecutable a una carpeta sin restricciones
+              (ej. Escritorio o Documentos).
+
+INFORMACIÓN TÉCNICA
+-------------------
+  Desarrollado con  : Python 3.11
+  Librerías clave   : openpyxl 3.1+, pandas 2.0+
+  Empaquetado con   : PyInstaller (--onefile)
+  Módulos incluidos : Motor de Turnos, Control OT, Motor de
+                      Alertas, Simulador CV, Generador Reportes
+  Hash de integridad: Eventos protegidos con SHA-256
+
+============================================================
+  Para soporte académico contactar al autor del proyecto.
+============================================================
