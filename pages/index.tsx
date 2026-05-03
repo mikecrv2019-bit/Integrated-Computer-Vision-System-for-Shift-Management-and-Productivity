@@ -227,9 +227,18 @@ export default function Home() {
 
       <main className="min-h-screen bg-gray-50">
         <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 shadow-lg">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl font-bold">🎯 AssistantTrack 4D</h1>
-            <p className="text-blue-100 text-lg">Sistema de Control Laboral con Computer Vision</p>
+          <div className="max-w-7xl mx-auto flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold">🎯 AssistantTrack 4D</h1>
+              <p className="text-blue-100 text-lg">Sistema de Control Laboral con Computer Vision</p>
+            </div>
+            <a
+              href="/proyecto-documentation.pdf"
+              download
+              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition shadow-md"
+            >
+              📄 Descargar Documentación
+            </a>
           </div>
         </header>
 
