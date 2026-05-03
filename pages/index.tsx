@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
+import { Pie } from 'react-chartjs-2'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 interface Employee {
   id: string
@@ -66,6 +70,33 @@ export default function Home() {
     }
   }
 
+  // Calcular estadísticas de alertas
+  const alertStats = {
+    CRITICAL: alerts.filter(a => a.type === 'CRITICAL').length,
+    WARNING: alerts.filter(a => a.type === 'WARNING').length,
+    INFO: alerts.filter(a => a.type === 'INFO').length,
+  }
+
+  const pieChartData = {
+    labels: ['Críticas', 'Advertencias', 'Información'],
+    datasets: [
+      {
+        data: [alertStats.CRITICAL, alertStats.WARNING, alertStats.INFO],
+        backgroundColor: [
+          '#dc2626',
+          '#f59e0b',
+          '#3b82f6',
+        ],
+        borderColor: [
+          '#991b1b',
+          '#d97706',
+          '#1e40af',
+        ],
+        borderWidth: 2,
+      },
+    ],
+  }
+
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="text-center">
@@ -107,7 +138,64 @@ export default function Home() {
             </div>
             <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
               <h3 className="text-gray-600 text-sm font-medium">🚨 Alertas</h3>
-              <p className="text-3xl font-bold text-red-600">{stats.alerts}</p>
+              <p className="text-3xl font-bold text-red-600">{alerts.length}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="border-b border-gray-200 pb-4 mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">📊 Distribución de Alertas</h2>
+              </div>
+              <div className="flex justify-center">
+                <div style={{ width: '300px', height: '300px' }}>
+                  <Pie
+                    data={pieChartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'bottom',
+                          labels: {
+                            padding: 20,
+                            font: { size: 14 },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="border-b border-gray-200 pb-4 mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">📈 Resumen de Alertas</h2>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                  <div>
+                    <p className="font-medium text-gray-800">Alertas Críticas</p>
+                    <p className="text-sm text-gray-600">Requieren atención inmediata</p>
+                  </div>
+                  <p className="text-3xl font-bold text-red-600">{alertStats.CRITICAL}</p>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                  <div>
+                    <p className="font-medium text-gray-800">Advertencias</p>
+                    <p className="text-sm text-gray-600">Situaciones a monitorear</p>
+                  </div>
+                  <p className="text-3xl font-bold text-yellow-600">{alertStats.WARNING}</p>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                  <div>
+                    <p className="font-medium text-gray-800">Información</p>
+                    <p className="text-sm text-gray-600">Registros del sistema</p>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-600">{alertStats.INFO}</p>
+                </div>
+              </div>
             </div>
           </div>
 
