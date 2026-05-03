@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { Pie, Bar, Line } from 'react-chartjs-2'
+import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -201,6 +201,30 @@ export default function Home() {
     ],
   }
 
+  // Datos para Productividad vs Improductividad
+  const productivityData = {
+    productive: 75,  // 75% productivo
+    unproductive: 25, // 25% improductivo
+  }
+
+  const productivityChartData = {
+    labels: ['Horas Productivas', 'Horas Improductivas'],
+    datasets: [
+      {
+        data: [productivityData.productive, productivityData.unproductive],
+        backgroundColor: [
+          '#10b981', // Verde para productivo
+          '#ef4444', // Rojo para improductivo
+        ],
+        borderColor: [
+          '#065f46',
+          '#991b1b',
+        ],
+        borderWidth: 2,
+      },
+    ],
+  }
+
   // Datos para Turnos (Doughnut)
   const turnoStats = {
     Mañana: employees.filter(e => e.turno === 'Mañana').length,
@@ -263,7 +287,41 @@ export default function Home() {
           </div>
 
           {/* GRÁFICOS */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Doughnut Chart - Productividad */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="border-b border-gray-200 pb-4 mb-4">
+                <h2 className="text-xl font-bold text-gray-800">📈 Productividad</h2>
+              </div>
+              <div className="flex justify-center">
+                <div style={{ width: '100%', height: '300px' }}>
+                  <Doughnut
+                    data={productivityChartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'bottom',
+                          labels: { padding: 15, font: { size: 12 } },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Productivas:</span>
+                  <span className="font-bold text-green-600">{productivityData.productive}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Improductivas:</span>
+                  <span className="font-bold text-red-600">{productivityData.unproductive}%</span>
+                </div>
+              </div>
+            </div>
+
             {/* Pie Chart - Alertas */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="border-b border-gray-200 pb-4 mb-4">
