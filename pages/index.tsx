@@ -161,6 +161,46 @@ export default function Home() {
     ],
   }
 
+  // Datos para Line Chart (Horas por Empleado)
+  const employeeHours = employees.slice(0, 10).map((emp, idx) => ({
+    id: emp.id,
+    nombre: emp.nombre,
+    horas: 8 + Math.random() * 2,
+    overtime: Math.random() * 2,
+  }))
+
+  const employeeChartData = {
+    labels: employeeHours.map(e => e.nombre),
+    datasets: [
+      {
+        label: 'Horas Trabajadas',
+        data: employeeHours.map(e => e.horas),
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 6,
+        pointBackgroundColor: '#3b82f6',
+        pointBorderColor: '#1e40af',
+        pointBorderWidth: 2,
+      },
+      {
+        label: 'Horas Overtime',
+        data: employeeHours.map(e => e.overtime),
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 6,
+        pointBackgroundColor: '#ef4444',
+        pointBorderColor: '#991b1b',
+        pointBorderWidth: 2,
+      },
+    ],
+  }
+
   // Datos para Turnos (Doughnut)
   const turnoStats = {
     Mañana: employees.filter(e => e.turno === 'Mañana').length,
@@ -287,6 +327,37 @@ export default function Home() {
                     y: {
                       beginAtZero: true,
                       ticks: { stepSize: 2 },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Line Chart - Horas por Empleado (Comparativo) */}
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <div className="border-b border-gray-200 pb-4 mb-4">
+              <h2 className="text-xl font-bold text-gray-800">📊 Horas Trabajadas vs Overtime por Empleado (Top 10)</h2>
+            </div>
+            <div style={{ width: '100%', height: '400px' }}>
+              <Line
+                data={employeeChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      labels: { font: { size: 12 } },
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: { stepSize: 1 },
+                      title: {
+                        display: true,
+                        text: 'Horas',
+                      },
                     },
                   },
                 }}
