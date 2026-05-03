@@ -401,6 +401,67 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Tabla de Productividad Individualizada */}
+          <div className="bg-white rounded-lg shadow mb-8 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <h2 className="text-2xl font-bold text-gray-800">📊 Productividad Individualizada por Empleado</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-100 border-b">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Empleado</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Área</th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Horas Productivas</th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Horas Improductivas</th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">% Productividad</th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.map((emp, idx) => {
+                    const hoursProductive = 6 + Math.random() * 2;
+                    const hoursUnproductive = 2 - Math.random() * 0.5;
+                    const totalHours = hoursProductive + hoursUnproductive;
+                    const percentProductive = Math.round((hoursProductive / totalHours) * 100);
+                    const isProductive = percentProductive >= 75;
+
+                    return (
+                      <tr key={emp.id} className="border-b hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-700 font-mono">{emp.id}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">{emp.nombre}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{emp.area}</td>
+                        <td className="px-6 py-4 text-center text-sm font-semibold text-green-600">{hoursProductive.toFixed(1)}h</td>
+                        <td className="px-6 py-4 text-center text-sm font-semibold text-red-600">{hoursUnproductive.toFixed(1)}h</td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex items-center justify-center">
+                            <div className="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                              <div
+                                className={`h-2 rounded-full ${isProductive ? 'bg-green-600' : 'bg-yellow-600'}`}
+                                style={{ width: `${percentProductive}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-bold">{percentProductive}%</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            isProductive
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {isProductive ? '✓ Productivo' : '⚠ Revisar'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* Line Chart - Horas por Empleado (Comparativo) */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <div className="border-b border-gray-200 pb-4 mb-4">
