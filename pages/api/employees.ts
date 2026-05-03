@@ -24,7 +24,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     { id: "E016", nombre: "Pedro Rivera", area: "Inlet", turno: "Mañana" },
     { id: "E017", nombre: "Alberto Tizon", area: "Inlet", turno: "Mañana" },
     { id: "E018", nombre: "Claudia Lopez", area: "Inlet", turno: "Mañana" },
-    { id: "E019", nombre: "Nikolas Storboscoba", area: "Inlet", turno: "Mañana" }
+    { id: "E019", nombre: "Nikolas Storboscoba", area: "Inlet", turno: "Mañana" },
+    { id: "E020", nombre: "Camila Balieva", area: "DoorTR", turno: "Mañana" },
+    { id: "E021", nombre: "Mario Dueñas", area: "Inlet", turno: "Mañana" } 
+    
   ]
 
   res.status(200).json(employees)
